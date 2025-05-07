@@ -1,0 +1,43 @@
+import useSWR from 'swr';
+import api from '../api/$api';
+import aspida from '@aspida/fetch';
+
+const client = api(aspida(fetch));
+
+// SWRを使用した検索フック
+const useSearch = (query: string | null) => {
+  console.log('useSearchが実行されました。query:', query);
+  const { data, error, isLoading, isValidating, mutate } = useSWR(
+    query,
+    async () => {
+      if (!query) return null;
+      console.log('APIが呼び出されます。keyword:', query);
+      const res = await client.customsearch.v1.$get({
+        query: {
+          key: 'AIzaSyATURZv5awvkKg9Mo3_JxpdXLV39_oJlXQ',
+          cx: '24713308a62924bea',
+          lr: 'lang_ja',
+          q: query,
+          num: 5
+        }
+      });
+      return res;
+    },
+    {
+      revalidateOnMount: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 60000, // キャッシュを無効化
+    }
+  );
+
+  return {
+    data,
+    isLoading,
+    isValidating,
+    error,
+    mutate,
+  };
+};
+
+export default useSearch;
