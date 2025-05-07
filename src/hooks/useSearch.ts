@@ -4,6 +4,10 @@ import aspida from '@aspida/fetch';
 
 const client = api(aspida(fetch));
 
+// Google Search API の設定
+const GOOGLE_API_KEY = 'AIzaSyATURZv5awvkKg9Mo3_JxpdXLV39_oJlXQ';
+const GOOGLE_CX = '24713308a62924bea';
+
 // SWRを使用した検索フック
 const useSearch = (query: string | null) => {
   console.log('useSearchが実行されました。query:', query);
@@ -14,8 +18,8 @@ const useSearch = (query: string | null) => {
       console.log('APIが呼び出されます。keyword:', query);
       const res = await client.customsearch.v1.$get({
         query: {
-          key: 'AIzaSyATURZv5awvkKg9Mo3_JxpdXLV39_oJlXQ',
-          cx: '24713308a62924bea',
+          key: GOOGLE_API_KEY,
+          cx: GOOGLE_CX,
           lr: 'lang_ja',
           q: query,
           num: 5
