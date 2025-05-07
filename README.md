@@ -38,3 +38,22 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+
+## Google Custom Search API の設定
+
+このアプリはGoogle Custom Search APIを使用して検索結果を取得しています。デフォルトのAPI設定を変更することで、異なるGoogle Custom Search APIを使用することができます。
+
+### API設定の変更方法
+
+`src/hooks/useSearch.ts`ファイル内の以下の値を変更してください：
+
+```typescript
+// Google Search API の設定
+const GOOGLE_API_KEY = 'YOUR_API_KEY'; // あなたのGoogle APIキー
+const GOOGLE_CX = 'YOUR_CX_VALUE';     // あなたのCustom Search Engineの識別子
+```
+
+1. `GOOGLE_API_KEY`: [Google Cloud Platform](https://console.cloud.google.com/)で取得したAPIキー
+2. `GOOGLE_CX`: [Programmable Search Engine](https://programmablesearchengine.google.com/about/)で作成した検索エンジンのCX値
+
+これらの値を変更することで、独自のGoogle Custom Search APIを使用できるようになります。
