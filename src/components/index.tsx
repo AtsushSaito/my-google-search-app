@@ -6,7 +6,6 @@ import {
   Link, 
   Container, 
   Box,
-  Divider,
   useMediaQuery,
   useTheme
 } from '@mui/material';
