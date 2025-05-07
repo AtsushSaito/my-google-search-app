@@ -24,10 +24,10 @@ const useSearch = (query: string | null) => {
       return res;
     },
     {
-      revalidateOnMount: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 60000, // キャッシュを無効化
+      revalidateOnMount: true,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 60000, 
     }
   );
 

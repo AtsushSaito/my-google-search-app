@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import useSearch from '../hooks/useSearch'
 import SearchResult from '../components'
 import { 
@@ -12,26 +12,50 @@ import {
   Toolbar,
   CircularProgress,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Snackbar,
+  Alert
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 
 export default function Home() {
-  const [keyword, setKeryword] = useState('')
+  const [keyword, setKeyword] = useState('')
   const [query, setQuery] = useState('')
+  const [searchCount, setSearchCount] = useState(0)
+  const [errorMsg, setErrorMsg] = useState('')
   const { data, isLoading, error } = useSearch(query)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
-  const handleSearch = () => {
-    if (!keyword?.trim()) return
-    setQuery(keyword)
-  }
+  // エラーメッセージを表示するかどうか
+  const showError = Boolean(errorMsg)
 
+  // 検索処理
+  const handleSearch = useCallback(() => {
+    // 検索キーワードが空の場合は処理しない
+    if (!keyword?.trim()) {
+      setErrorMsg('検索キーワードを入力してください')
+      return
+    }
+    
+    // 検索カウンターをインクリメントすることで強制的に再検索を実行
+    setSearchCount(prev => prev + 1)
+    setQuery(keyword.trim())
+    
+    // デバッグ用
+    console.log(`検索実行: "${keyword.trim()}" (${searchCount + 1}回目)`)
+  }, [keyword, searchCount])
+
+  // Enterキー押下時の処理
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch()
     }
+  }
+
+  // エラーメッセージを閉じる
+  const handleCloseError = () => {
+    setErrorMsg('')
   }
 
   return (
@@ -60,7 +84,7 @@ export default function Home() {
               variant="outlined"
               size={isMobile ? "small" : "medium"}
               value={keyword}
-              onChange={(e) => setKeryword(e.target.value)}
+              onChange={(e) => setKeyword(e.target.value)}
               onKeyDown={handleKeyDown}
               sx={{ mb: isMobile ? 1 : 0 }}
             />
@@ -69,13 +93,14 @@ export default function Home() {
               color="primary" 
               onClick={handleSearch}
               startIcon={<SearchIcon />}
+              disabled={isLoading}
               sx={{ 
                 height: isMobile ? 40 : 56, 
                 width: isMobile ? '100%' : 'auto',
                 px: 3 
               }}
             >
-              検索
+              {isLoading ? '検索中...' : '検索'}
             </Button>
           </Box>
         </Paper>
@@ -88,10 +113,26 @@ export default function Home() {
           <Typography color="error" variant="body1" sx={{ px: 2 }}>
             エラーが発生しました: {error.toString()}
           </Typography>
-        ) : data && (
+        ) : data && data.items?.length > 0 ? (
           <SearchResult data={data} />
-        )}
+        ) : query ? (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="body1">検索結果がありません</Typography>
+          </Box>
+        ) : null}
       </Container>
+
+      {/* エラーメッセージ表示用のSnackbar */}
+      <Snackbar
+        open={showError}
+        autoHideDuration={4000}
+        onClose={handleCloseError}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseError} severity="warning" sx={{ width: '100%' }}>
+          {errorMsg}
+        </Alert>
+      </Snackbar>
     </>
   )
 }
