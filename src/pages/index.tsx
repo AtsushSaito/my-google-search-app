@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import useSearch from '../hooks/useSearch'
+import useSearch, { SearchEngineType } from '../hooks/useSearch'
 import SearchResult from '../components'
 import { 
   Container, 
@@ -14,21 +14,42 @@ import {
   useMediaQuery,
   useTheme,
   Snackbar,
-  Alert
+  Alert,
+  ToggleButtonGroup,
+  ToggleButton
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
+import GoogleIcon from '@mui/icons-material/Google'
+import BraveIcon from '@mui/icons-material/Security' // Braveアイコン用
 
 export default function Home() {
   const [keyword, setKeyword] = useState('')
   const [query, setQuery] = useState('')
   const [searchCount, setSearchCount] = useState(0)
   const [errorMsg, setErrorMsg] = useState('')
-  const { data, isLoading, error } = useSearch(query)
+  const [searchEngine, setSearchEngine] = useState<SearchEngineType>('google')
+  const { data, isLoading, error } = useSearch(query, searchEngine)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
   // エラーメッセージを表示するかどうか
   const showError = Boolean(errorMsg)
+
+  // 検索エンジンの切り替え
+  const handleSearchEngineChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newEngine: SearchEngineType | null,
+  ) => {
+    if (newEngine !== null) {
+      setSearchEngine(newEngine);
+      console.log('検索エンジンを切り替えました:', newEngine);
+      
+      // 検索中の場合は、新しいエンジンで再検索
+      if (query) {
+        setSearchCount(prev => prev + 1);
+      }
+    }
+  };
 
   // 検索処理
   const handleSearch = useCallback(() => {
@@ -43,8 +64,8 @@ export default function Home() {
     setQuery(keyword.trim())
     
     // デバッグ用
-    console.log(`検索実行: "${keyword.trim()}" (${searchCount + 1}回目)`)
-  }, [keyword, searchCount])
+    console.log(`検索実行: "${keyword.trim()}" (${searchCount + 1}回目, エンジン: ${searchEngine})`)
+  }, [keyword, searchCount, searchEngine])
 
   // Enterキー押下時の処理
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -63,8 +84,32 @@ export default function Home() {
       <AppBar position="static" color="primary" elevation={0}>
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Google Search App
+            Search App
           </Typography>
+          
+          {/* 検索エンジン切り替えボタン */}
+          <ToggleButtonGroup
+            value={searchEngine}
+            exclusive
+            onChange={handleSearchEngineChange}
+            aria-label="検索エンジン選択"
+            size="small"
+            color="standard"
+            sx={{ 
+              bgcolor: 'rgba(255,255,255,0.15)', 
+              '& .MuiToggleButton-root': { 
+                color: 'white',
+                '&.Mui-selected': { bgcolor: 'rgba(255,255,255,0.25)' }
+              }
+            }}
+          >
+            <ToggleButton value="google" aria-label="Google検索">
+              <GoogleIcon sx={{ mr: 1 }} /> Google
+            </ToggleButton>
+            <ToggleButton value="brave" aria-label="Brave検索">
+              <BraveIcon sx={{ mr: 1 }} /> Brave
+            </ToggleButton>
+          </ToggleButtonGroup>
         </Toolbar>
       </AppBar>
       
@@ -113,7 +158,7 @@ export default function Home() {
           <Typography color="error" variant="body1" sx={{ px: 2 }}>
             エラーが発生しました: {error.toString()}
           </Typography>
-        ) : data && data.items?.length > 0 ? (
+        ) : data ? (
           <SearchResult data={data} />
         ) : query ? (
           <Box sx={{ textAlign: 'center', py: 4 }}>

@@ -10,17 +10,30 @@ import {
   useTheme
 } from '@mui/material';
 
-// データアイテムの型定義
-interface Item {
+// Google検索結果の型定義
+interface GoogleItem {
   title: string;
   link: string;
   snippet: string;
 }
 
+// Brave検索結果の型定義
+interface BraveItem {
+  title: string;
+  url: string;
+  description: string;
+}
+
 // コンポーネントのpropsの型定義
 interface ResultsListProps {
   data: {
-    items?: Item[];
+    engine: 'google' | 'brave';
+    data: {
+      items?: GoogleItem[];  // Google用
+      web?: {               // Brave用
+        results?: BraveItem[];
+      };
+    };
   };
 }
 
@@ -28,6 +41,40 @@ interface ResultsListProps {
 const ResultsList: React.FC<ResultsListProps> = ({ data }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // 検索エンジンに応じた結果アイテムの取得
+  const getResultItems = () => {
+    if (data.engine === 'google') {
+      return data.data.items || [];
+    } else {
+      // Brave検索の結果形式に合わせる
+      return data.data.web?.results || [];
+    }
+  };
+
+  // アイテムのプロパティを取得するヘルパー関数
+  const getItemTitle = (item: GoogleItem | BraveItem) => {
+    // Google/Braveともにtitleプロパティあり
+    return item.title;
+  };
+
+  const getItemLink = (item: GoogleItem | BraveItem) => {
+    if (data.engine === 'google') {
+      return (item as GoogleItem).link;
+    } else {
+      return (item as BraveItem).url;
+    }
+  };
+
+  const getItemSnippet = (item: GoogleItem | BraveItem) => {
+    if (data.engine === 'google') {
+      return (item as GoogleItem).snippet;
+    } else {
+      return (item as BraveItem).description;
+    }
+  };
+
+  const resultItems = getResultItems();
 
   return (
     <Container 
@@ -39,9 +86,9 @@ const ResultsList: React.FC<ResultsListProps> = ({ data }) => {
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1, sm: 2 } }}>
-        {data.items?.map((item: Item) => (
+        {resultItems.map((item: GoogleItem | BraveItem) => (
           <Card 
-            key={item.link} 
+            key={getItemLink(item)} 
             variant="outlined" 
             sx={{ 
               borderRadius: { xs: isMobile ? 0 : 1, sm: 1 },
@@ -63,13 +110,13 @@ const ResultsList: React.FC<ResultsListProps> = ({ data }) => {
                 }}
               >
                 <Link 
-                  href={item.link}
+                  href={getItemLink(item)}
                   target="_blank"
                   rel="noopener noreferrer"
                   underline="hover"
                   color="primary"
                 >
-                  {item.title}
+                  {getItemTitle(item)}
                 </Link>
               </Typography>
               <Typography 
@@ -80,7 +127,7 @@ const ResultsList: React.FC<ResultsListProps> = ({ data }) => {
                   lineHeight: 1.5
                 }}
               >
-                {item.snippet}
+                {getItemSnippet(item)}
               </Typography>
             </CardContent>
           </Card>

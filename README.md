@@ -57,3 +57,22 @@ const GOOGLE_CX = 'YOUR_CX_VALUE';     // あなたのCustom Search Engineの識
 2. `GOOGLE_CX`: [Programmable Search Engine](https://programmablesearchengine.google.com/about/)で作成した検索エンジンのCX値
 
 これらの値を変更することで、独自のGoogle Custom Search APIを使用できるようになります。
+
+## Brave Search API の設定
+
+このアプリはBrave Search APIもサポートしています。UIから簡単に検索エンジンを切り替えることができます。
+
+### Brave API設定の変更方法
+
+`src/hooks/useSearch.ts`ファイル内の以下の値を変更してください：
+
+```typescript
+// Brave Search API の設定
+const BRAVE_API_KEY = 'YOUR_BRAVE_API_KEY'; // あなたのBrave Search APIキー
+```
+
+`BRAVE_API_KEY`: [Brave Search API](https://brave.com/search/api/)から取得したAPIキー
+
+## 検索エンジンの切り替え
+
+アプリ上部のトグルボタンでGoogle検索とBrave検索を簡単に切り替えることができます。検索エンジンを切り替えると、同じキーワードで選択したエンジンを使って再検索が実行されます。
