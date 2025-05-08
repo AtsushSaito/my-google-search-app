@@ -43,6 +43,12 @@ export default async function handler(
     
   } catch (error) {
     console.error('Error in Brave search proxy:', error);
-    return res.status(500).json({ error: 'Internal server error', message: error.message });
+    
+    // エラーオブジェクトの型チェック
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : 'Unknown error occurred';
+      
+    return res.status(500).json({ error: 'Internal server error', message: errorMessage });
   }
 } 
