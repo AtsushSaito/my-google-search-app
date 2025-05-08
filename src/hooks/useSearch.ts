@@ -8,9 +8,6 @@ const client = api(aspida(fetch));
 const GOOGLE_API_KEY = 'AIzaSyATURZv5awvkKg9Mo3_JxpdXLV39_oJlXQ';
 const GOOGLE_CX = '24713308a62924bea';
 
-// Brave Search API の設定
-const BRAVE_API_KEY = 'BSAOLOinphXxKMWEC2DnyN6mTY_n6Wz';
-
 // 検索エンジンタイプの定義
 export type SearchEngineType = 'google' | 'brave';
 

@@ -3,7 +3,7 @@ import { dataToURLString } from 'aspida';
 import type { Methods as Methods_xe5nxf } from './customsearch/v1';
 import type { Methods as Methods_brave } from './brave/search';
 
-const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
+const api = <T>({ fetch }: AspidaClient<T>) => {
   const googlePrefix = 'https://customsearch.googleapis.com';
   const bravePrefix = 'https://api.search.brave.com';
   
