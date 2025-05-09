@@ -1,4 +1,4 @@
-import type { DefineMethods } from 'aspida';
+import type { DefineMethods } from "aspida";
 
 type BraveSearchResponse = {
   web?: {
@@ -17,11 +17,6 @@ export type Methods = DefineMethods<{
       count?: number;
       search_lang?: string;
     };
-    // リクエストヘッダーの定義
-    reqHeaders: {
-      'Accept': string;
-      'X-Subscription-Token': string;
-    };
     resBody: BraveSearchResponse;
   };
-}>; 
+}>;
