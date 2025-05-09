@@ -7,10 +7,6 @@ import braveApi from "../api2/$api";
 const googleClient = googleApi(aspida(fetch));
 const braveClient = braveApi(aspida(fetch));
 
-// Google API設定
-const GOOGLE_API_KEY = "AIzaSyATURZv5awvkKg9Mo3_JxpdXLV39_oJlXQ";
-const GOOGLE_CX = "24713308a62924bea";
-
 // 検索エンジンタイプの定義
 export type SearchEngineType = "google" | "brave";
 
