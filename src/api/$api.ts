@@ -5,10 +5,10 @@ import type { Methods as Methods_brave } from './brave/search';
 
 const api = <T>({ fetch }: AspidaClient<T>) => {
   const googlePrefix = 'https://customsearch.googleapis.com';
-  const bravePrefix = 'https://api.search.brave.com';
+  const bravePrefix = '';
   
   const PATH0 = '/customsearch/v1';
-  const PATH1 = '/res/v1/web/search';
+  const PATH1 = '/api/brave-search';
   const GET = 'GET';
 
   return {
@@ -26,19 +26,17 @@ const api = <T>({ fetch }: AspidaClient<T>) => {
       search: {
         get: (option: { 
           query: Methods_brave['get']['query'], 
-          headers: Methods_brave['get']['reqHeaders'],
+          headers?: Partial<Methods_brave['get']['reqHeaders']>,
           config?: T | undefined 
         }) => {
-          const requestOption = { ...option, headers: option.headers };
-          return fetch<Methods_brave['get']['resBody']>(bravePrefix, PATH1, GET, requestOption).json();
+          return fetch<Methods_brave['get']['resBody']>(bravePrefix, PATH1, GET, { query: option.query }).json();
         },
         $get: (option: { 
           query: Methods_brave['get']['query'], 
-          headers: Methods_brave['get']['reqHeaders'],
+          headers?: Partial<Methods_brave['get']['reqHeaders']>,
           config?: T | undefined 
         }) => {
-          const requestOption = { ...option, headers: option.headers };
-          return fetch<Methods_brave['get']['resBody']>(bravePrefix, PATH1, GET, requestOption).json().then(r => r.body);
+          return fetch<Methods_brave['get']['resBody']>(bravePrefix, PATH1, GET, { query: option.query }).json().then(r => r.body);
         },
         $path: (option?: { method?: 'get' | undefined; query: Methods_brave['get']['query'] } | undefined) =>
           `${bravePrefix}${PATH1}${option && option.query ? `?${dataToURLString(option.query)}` : ''}`,

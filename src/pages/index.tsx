@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import useSearch, { SearchEngineType } from '../hooks/useSearch'
+import useSearchHistory from '../hooks/useSearchHistory'
 import SearchResult from '../components'
+import SearchHistory from '../components/SearchHistory'
 import { 
   Container, 
   Typography, 
@@ -16,11 +18,17 @@ import {
   Snackbar,
   Alert,
   ToggleButtonGroup,
-  ToggleButton
+  ToggleButton,
+  Divider,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import GoogleIcon from '@mui/icons-material/Google'
 import BraveIcon from '@mui/icons-material/Security' // Braveアイコン用
+import HistoryIcon from '@mui/icons-material/History'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 export default function Home() {
   const [keyword, setKeyword] = useState('')
@@ -29,8 +37,10 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState('')
   const [searchEngine, setSearchEngine] = useState<SearchEngineType>('google')
   const { data, isLoading, error } = useSearch(query, searchEngine)
+  const { history, addToHistory, removeFromHistory, clearHistory } = useSearchHistory()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+  const [historyExpanded, setHistoryExpanded] = useState(false)
 
   // エラーメッセージを表示するかどうか
   const showError = Boolean(errorMsg)
@@ -61,11 +71,15 @@ export default function Home() {
     
     // 検索カウンターをインクリメントすることで強制的に再検索を実行
     setSearchCount(prev => prev + 1)
-    setQuery(keyword.trim())
+    const trimmedKeyword = keyword.trim()
+    setQuery(trimmedKeyword)
+    
+    // 検索履歴に追加
+    addToHistory(trimmedKeyword, searchEngine)
     
     // デバッグ用
-    console.log(`検索実行: "${keyword.trim()}" (${searchCount + 1}回目, エンジン: ${searchEngine})`)
-  }, [keyword, searchCount, searchEngine])
+    console.log(`検索実行: "${trimmedKeyword}" (${searchCount + 1}回目, エンジン: ${searchEngine})`)
+  }, [keyword, searchCount, searchEngine, addToHistory])
 
   // Enterキー押下時の処理
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -77,6 +91,15 @@ export default function Home() {
   // エラーメッセージを閉じる
   const handleCloseError = () => {
     setErrorMsg('')
+  }
+
+  // 履歴から検索を実行
+  const handleSearchFromHistory = (historyQuery: string, historyEngine: SearchEngineType) => {
+    setKeyword(historyQuery)
+    setSearchEngine(historyEngine)
+    setQuery(historyQuery)
+    setSearchCount(prev => prev + 1)
+    setHistoryExpanded(false)
   }
 
   return (
@@ -148,6 +171,50 @@ export default function Home() {
               {isLoading ? '検索中...' : '検索'}
             </Button>
           </Box>
+          
+          {/* 検索履歴アコーディオン */}
+          <Accordion 
+            expanded={historyExpanded} 
+            onChange={() => setHistoryExpanded(!historyExpanded)}
+            sx={{ mt: 2, boxShadow: 'none', border: '1px solid', borderColor: 'divider' }}
+          >
+            <AccordionSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="search-history-content"
+              id="search-history-header"
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <HistoryIcon sx={{ mr: 1, color: 'text.secondary' }} />
+                <Typography variant="subtitle2">検索履歴</Typography>
+                <Box 
+                  component="span" 
+                  sx={{ 
+                    ml: 1, 
+                    bgcolor: 'primary.main', 
+                    color: 'white', 
+                    borderRadius: '50%',
+                    width: 22, 
+                    height: 22, 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center',
+                    fontSize: '0.75rem'
+                  }}
+                >
+                  {history.length}
+                </Box>
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Divider sx={{ mb: 2 }} />
+              <SearchHistory 
+                history={history}
+                onSearchFromHistory={handleSearchFromHistory}
+                onRemoveHistoryItem={removeFromHistory}
+                onClearHistory={clearHistory}
+              />
+            </AccordionDetails>
+          </Accordion>
         </Paper>
 
         {isLoading ? (

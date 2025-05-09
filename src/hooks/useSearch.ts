@@ -63,18 +63,15 @@ const useSearch = (query: string | null, searchEngine: SearchEngineType = 'googl
           data: res as GoogleSearchResult 
         };
       } else {
-        // Brave検索API - Next.jsのAPIルートを使用
-        console.log('Brave検索を実行します - APIルート経由');
-        const apiUrl = `/api/brave-search?q=${encodeURIComponent(query)}&count=5&search_lang=jp`;
-        const response = await fetch(apiUrl);
-        
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Brave API Error:', errorText);
-          throw new Error(`Brave API Error: ${response.status} ${response.statusText}`);
-        }
-        
-        const braveData = await response.json();
+        // Brave検索API - aspidaクライアントとNext.jsのAPIルートを使用
+        console.log('Brave検索を実行します - aspidaクライアント経由');
+        const braveData = await client.brave.search.$get({
+          query: {
+            q: query,
+            count: 5,
+            search_lang: 'jp'
+          }
+        });
         
         return { 
           engine: 'brave' as const, 
